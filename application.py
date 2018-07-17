@@ -18,4 +18,5 @@ def index():
 @socketio.on("send message")
 def send(data):
     message = data["message"]
-    emit("announce message", {"message": message}, broadcast=True)
+    username = data["username"]
+    emit("announce message", {"message": message, "username": username}, broadcast=True)

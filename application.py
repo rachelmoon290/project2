@@ -1,5 +1,4 @@
-import os
-import requests
+import os, requests
 
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit

@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!localStorage.getItem('username')) {
     var username = prompt("Please create a username to start chatting in ChatterBox!");
     localStorage.setItem('username', username);
-
   };
   var username = localStorage.getItem('username');
 
@@ -20,26 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Connect to websocket
   var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-  // When connected, configure buttons
+  // When connected,
   socket.on('connect', () => {
-
-      // Each button should emit a "submit vote" event
+      // submit messages
       document.querySelector("#new-message").onsubmit = () => {
           var message = document.querySelector("#message").value;
-
-          socket.emit('send message', {'message': message, 'username': username});
+          socket.emit('send message', {"message": message, "username": username});
           return false;
         };
       });
 
-  // When a new vote is announced, add to the unordered list
+  // When a new message is announced, add the chat message onto the page
   socket.on('announce message', data => {
       var time = new Date();
       var localtime = time.toLocaleString();
       const li = document.createElement('li');
-      li.innerHTML = `<span style = "font-size: 20px"><b> ${username} </b></span> <span style = "color: grey">(${localtime})</span><b>:</b> <br> &nbsp;${data.message}`;
+      li.innerHTML = `<span style = "font-size: 20px"><b> ${data.user} </b></span> <span style = "color: grey">(${localtime})</span><b>:</b> <br> &nbsp;${data.message}`;
       document.querySelector('#messages').append(li);
-      storeMessages(username, localtime, data.message);
+      storeMessages(data.user, localtime, data.message);
       document.querySelector("#message").value = '';
   });
 

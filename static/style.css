@@ -1,0 +1,36 @@
+body {
+  max-width: 1600px;
+  margin: 20px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.vertical-tab {
+  width: 180px;
+  position: fixed;
+  top: 137px;
+  left: 30px;
+}
+
+#channels a {
+    text-decoration: none;
+    background-color: lightgrey;
+    color: black;
+    display: block;
+    padding: 10px;
+}
+
+#channels a:hover {
+    background-color: aquamarine;
+}
+
+.chat_space, form {
+  margin-left: 250px;
+}
+#chatbox{
+  background-color: #affff8;
+  padding: 25px;
+  border-radius: 5px;
+}

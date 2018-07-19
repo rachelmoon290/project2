@@ -26,10 +26,6 @@ ul {
     background-color: aquamarine;
 }
 
-#channels a.active {
-  background-color: green;
-}
-
 
 .chat_space, form {
   margin-left: 250px;

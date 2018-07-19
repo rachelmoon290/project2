@@ -25,8 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.channel_link').forEach(channel => {
       channel.onclick = () => {
-        document.querySelectorAll('.channel_link').setAttribute("class", "channel_link");
-        channel.setAttribute("class", "active");
         get_messages(channel.dataset.page);
         localStorage.setItem("channel", channel.dataset.page);
 
@@ -105,11 +103,7 @@ function get_channels() {
 }
 
 function get_messages(channel_name) {
-  document.querySelectorAll(".channel_link").forEach(link => {
-    if (link.dataset.page == channel_name) {
-      link.setAttribute("class", "active");
-    };
-  })
+  document.querySelector("span").innerHTML = channel_name;
   const request = new XMLHttpRequest();
   request.open('GET', '/getmessages');
   request.onload = () => {

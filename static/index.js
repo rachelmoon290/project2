@@ -7,9 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   var username = localStorage.getItem('username');
 
-  // set up channel lists and load messages
-  get_channel();
-  get_messages("general");
+
+  if(!localStorage.getItem('channel')) {
+    localStorage.setItem('channel', 'general');
+  };
+  var current_channel = localStorage.getItem('channel');
+
+  // set up channel lists and load current channel's messages
+  get_channels();
+  get_messages(current_channel);
 
   // Connect to websocket
   var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
@@ -19,7 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.channel_link').forEach(channel => {
       channel.onclick = () => {
+        document.querySelectorAll('.channel_link').setAttribute("class", "channel_link");
+        channel.setAttribute("class", "active");
         get_messages(channel.dataset.page);
+        localStorage.setItem("channel", channel.dataset.page);
+
         return false;
       };
     });
@@ -59,22 +69,25 @@ document.addEventListener('DOMContentLoaded', () => {
           var message = document.querySelector("#message").value;
           var time = new Date();
           var localtime = time.toLocaleString();
-          socket.emit('send message', {"message": message, "username": username, "timestamp": localtime});
+          var channel = localStorage.getItem("channel");
+          socket.emit('send message', {"message": message, "channel": channel, "username": username, "timestamp": localtime});
           return false;
         };
 
   // When a new message is announced, add the chat message onto the page
   socket.on('announce message', data => {
+    if (data.channel == localStorage.getItem("channel")) {
       const li = document.createElement('li');
       li.innerHTML = `<span style = "font-size: 20px"><b> ${data.user} </b></span> <span style = "color: grey">(${data.timestamp})</span><b>:</b> <br> &nbsp;${data.message}`;
       document.querySelector('#messages').append(li);
       document.querySelector("#message").value = '';
+    };
   });
 });
 
 
 //function to set up channel lists
-function get_channel() {
+function get_channels() {
   const request = new XMLHttpRequest();
   request.open('GET', '/getchannel');
   request.onload = () => {
@@ -92,17 +105,25 @@ function get_channel() {
 }
 
 function get_messages(channel_name) {
+  document.querySelectorAll(".channel_link").forEach(link => {
+    if (link.dataset.page == channel_name) {
+      link.setAttribute("class", "active");
+    };
+  })
   const request = new XMLHttpRequest();
   request.open('GET', '/getmessages');
   request.onload = () => {
-    const messages = request.responseText;
+    var messages = request.responseText;
     if (messages.length > 0) {
-    JSON.parse(messages).forEach(message => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span style = "font-size: 20px"><b> ${message[0].username} </b></span> <span style = "color: grey">(${message[0].time})</span><b>:</b> <br> &nbsp;${message[0].message}`;
-      document.querySelector("#messages").append(li);
-    });
+      messages = JSON.parse(messages);
+      for (var message in messages) {
+        if (message["channel"] == channel_name) {
+          const li = document.createElement('li');
+          li.innerHTML = `<span style = "font-size: 20px"><b> ${message.username} </b></span> <span style = "color: grey">(${message.time})</span><b>:</b> <br> &nbsp;${message.message}`;
+          document.querySelector("#messages").append(li);
+        };
+      };
+    };
   };
-};
   request.send();
 }

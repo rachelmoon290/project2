@@ -72,4 +72,15 @@ def send(data):
     messages[messagecounter] = temp_dict
     messagecounter += 1
 
+    counter = 0
+    init = None
+    for key in messages:
+        if messages[key]['channel'] == current_channel:
+            if counter == 0:
+                init = key
+            counter += 1
+    if counter > 5:
+        del messages[init]
+
+
     emit("announce message", {"message": message, "user": session["user_id"], "channel": current_channel , "timestamp": timestamp}, broadcast=True)

@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   var username = localStorage.getItem('username');
 
-
   if(!localStorage.getItem('channel')) {
     localStorage.setItem('channel', 'general');
   };
@@ -22,23 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // When connected,
   socket.on('connect',() => {
-
     document.querySelectorAll('.channel_link').forEach(channel => {
       channel.onclick = () => {
         get_messages(channel.dataset.page);
         localStorage.setItem("channel", channel.dataset.page);
-
         return false;
       };
     });
 
-
     document.querySelector("#create_channel").onclick = () => {
       var channel_name = prompt("Name your new channel!");
-        socket.emit('create channel', {"channel": channel_name});
-        return false;
-          };
-        });
+      socket.emit('create channel', {"channel": channel_name});
+      return false;
+    };
+  });
 
   socket.on('already existing channel', () => {
     var channel_name = prompt("Channel name already exists. Please enter a new channel name!");
@@ -59,18 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
     a.setAttribute("data-page", `${new_channel}`);
     a.innerHTML = new_channel;
     document.querySelector("#channels").append(a);
-    });
+  });
 
 
-      // submit messages
-      document.querySelector("#new-message").onsubmit = () => {
-          var message = document.querySelector("#message").value;
-          var time = new Date();
-          var localtime = time.toLocaleString();
-          var channel = localStorage.getItem("channel");
-          socket.emit('send message', {"message": message, "channel": channel, "username": username, "timestamp": localtime});
-          return false;
-        };
+  // submit messages
+  document.querySelector("#new-message").onsubmit = () => {
+    var message = document.querySelector("#message").value;
+    var time = new Date();
+    var localtime = time.toLocaleString();
+    var channel = localStorage.getItem("channel");
+    socket.emit('send message', {"message": message, "channel": channel, "username": username, "timestamp": localtime});
+    return false;
+  };
 
   // When a new message is announced, add the chat message onto the page
   socket.on('announce message', data => {

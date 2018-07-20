@@ -18,8 +18,9 @@ Session(app)
 
 # global variables
 channel_list = ['general']
+channels_counter = {'general': 0}
 messages = {}
-messagecounter = 0
+message_id = 0
 
 @app.route("/")
 def index():
@@ -39,6 +40,8 @@ def getmessages():
 @socketio.on("create channel")
 def create_channel(data):
     global channel_list
+    global channels_counter
+
     new_channel = data["channel"]
 
     if (new_channel == None):
@@ -49,13 +52,15 @@ def create_channel(data):
         emit("invalid channel name")
     else:
         channel_list.append(new_channel)
+        channels_counter[new_channel] = 0
         emit("channel updated", {"new_channel": new_channel}, broadcast=True)
 
 
 @socketio.on("send message")
 def send(data):
     global messages
-    global messagecounter
+    global message_id
+    global channels_counter
 
     session["user_id"] = data["username"]
     timestamp = data["timestamp"]
@@ -69,18 +74,16 @@ def send(data):
         'message': message
     }
 
-    messages[messagecounter] = temp_dict
-    messagecounter += 1
+    messages[message_id] = temp_dict
+    message_id += 1
+    channels_counter[current_channel] += 1
 
-    counter = 0
-    init = None
-    for key in messages:
-        if messages[key]['channel'] == current_channel:
-            if counter == 0:
-                init = key
-            counter += 1
-    if counter > 5:
-        del messages[init]
+    if (channels_counter[current_channel] > 100):
+        for key in messages:
+            if messages[key]["channel"] == current_channel:
+                del messages[key]
+                channels_counter[current_channel] -= 1
+                break;
 
 
     emit("announce message", {"message": message, "user": session["user_id"], "channel": current_channel , "timestamp": timestamp}, broadcast=True)

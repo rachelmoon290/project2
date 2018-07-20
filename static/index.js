@@ -74,6 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const li = document.createElement('li');
       li.innerHTML = `<span style = "font-size: 20px"><b> ${data.user} </b></span> <span style = "color: grey">(${data.timestamp})</span><b>:</b> <br> &nbsp;${data.message}`;
       document.querySelector('#messages').append(li);
+
+      if (document.querySelectorAll("#messages li").length > 100) {
+          messages = document.querySelector("#messages");
+          messages.removeChild(messages.firstChild);
+      };
+
       document.querySelector("#message").value = '';
     };
   });
@@ -110,10 +116,10 @@ function get_messages(channel_name) {
     var messages = request.responseText;
     if (messages.length > 0) {
       messages = JSON.parse(messages);
-      for (var message in messages) {
-        if (messages[message]["channel"] == channel_name) {
+      for (var key in messages) {
+        if (messages[key]["channel"] == channel_name) {
           const li = document.createElement('li');
-          li.innerHTML = `<span style = "font-size: 20px"><b> ${messages[message]["username"]} </b></span> <span style = "color: grey">(${messages[message]["timestamp"]})</span><b>:</b> <br> &nbsp;${messages[message]["message"]}`;
+          li.innerHTML = `<span style = "font-size: 20px"><b> ${messages[key]["username"]} </b></span> <span style = "color: grey">(${messages[key]["timestamp"]})</span><b>:</b> <br> &nbsp;${messages[key]["message"]}`;
           document.querySelector("#messages").append(li);
         };
       };

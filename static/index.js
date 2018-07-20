@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   get_channels();
   get_messages(current_channel);
 
+
   // Connect to websocket
   var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -34,6 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
       socket.emit('create channel', {"channel": channel_name});
       return false;
     };
+
+    //delete message
+    document.querySelectorAll("button").forEach(del => {
+      del.onclick = () => {
+        var key = del.parentElement.dataset.key;
+        socket.emit("delete message", {"key": key});
+        return false;
+      };
+    });
+
+
   });
 
   socket.on('already existing channel', () => {
@@ -72,8 +84,16 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.on('announce message', data => {
     if (data.channel == localStorage.getItem("channel")) {
       const li = document.createElement('li');
+      li.setAttribute("data-key", `${data.key}`);
       li.innerHTML = `<span style = "font-size: 20px"><b> ${data.user} </b></span> <span style = "color: grey">(${data.timestamp})</span><b>:</b> <br> &nbsp;${data.message}`;
       document.querySelector('#messages').append(li);
+
+      if (data.user == localStorage.getItem("username")) {
+        var del = document.createElement("button");
+        del.setAttribute("class", "delete");
+        del.innerHTML = "Delete";
+        li.append(del);
+      };
 
       if (document.querySelectorAll("#messages li").length > 100) {
           messages = document.querySelector("#messages");
@@ -82,6 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.querySelector("#message").value = '';
     };
+  });
+
+
+
+  socket.on("deleted", data => {
+    document.querySelector(`[data-key = '${data.key}']`).remove();
   });
 });
 
@@ -120,7 +146,15 @@ function get_messages(channel_name) {
         if (messages[key]["channel"] == channel_name) {
           const li = document.createElement('li');
           li.innerHTML = `<span style = "font-size: 20px"><b> ${messages[key]["username"]} </b></span> <span style = "color: grey">(${messages[key]["timestamp"]})</span><b>:</b> <br> &nbsp;${messages[key]["message"]}`;
+          li.setAttribute("data-key", `${key}`);
           document.querySelector("#messages").append(li);
+
+          if (messages[key]["username"] == localStorage.getItem("username")) {
+            var del = document.createElement("button");
+            del.setAttribute("class", "delete");
+            del.innerHTML = "Delete";
+            li.append(del);
+          };
         };
       };
     };

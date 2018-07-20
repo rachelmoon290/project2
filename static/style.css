@@ -35,3 +35,7 @@ ul {
   padding: 25px;
   border-radius: 5px;
 }
+
+.hide  {
+    float: right;
+}

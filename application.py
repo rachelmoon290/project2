@@ -8,13 +8,17 @@ import json
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+
 socketio = SocketIO(app)
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
+
+
+Session(app)
 
 # global variables
 channel_list = ['general']
@@ -75,6 +79,7 @@ def send(data):
     }
 
     messages[message_id] = temp_dict
+    current_message_id = message_id
     message_id += 1
     channels_counter[current_channel] += 1
 
@@ -86,4 +91,13 @@ def send(data):
                 break;
 
 
-    emit("announce message", {"message": message, "user": session["user_id"], "channel": current_channel , "timestamp": timestamp}, broadcast=True)
+    emit("announce message", {"message": message, "key": current_message_id, "user": session["user_id"], "channel": current_channel , "timestamp": timestamp}, broadcast=True)
+
+
+@socketio.on("delete message")
+def delete(data):
+    global messages
+
+    key = data["key"]
+    del messages[int(key)]
+    emit("deleted", {"key": key}, broadcast = True)

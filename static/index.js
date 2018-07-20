@@ -103,7 +103,11 @@ function get_channels() {
 }
 
 function get_messages(channel_name) {
-  document.querySelector("span").innerHTML = channel_name;
+  document.querySelector("#channelname").innerHTML = channel_name;
+  var messagelist = document.querySelector("#messages");
+  while (messagelist.firstChild) {
+    messagelist.removeChild(messagelist.firstChild);
+  };
   const request = new XMLHttpRequest();
   request.open('GET', '/getmessages');
   request.onload = () => {
@@ -111,9 +115,9 @@ function get_messages(channel_name) {
     if (messages.length > 0) {
       messages = JSON.parse(messages);
       for (var message in messages) {
-        if (message["channel"] == channel_name) {
+        if (messages[message]["channel"] == channel_name) {
           const li = document.createElement('li');
-          li.innerHTML = `<span style = "font-size: 20px"><b> ${message.username} </b></span> <span style = "color: grey">(${message.time})</span><b>:</b> <br> &nbsp;${message.message}`;
+          li.innerHTML = `<span style = "font-size: 20px"><b> ${messages[message]["username"]} </b></span> <span style = "color: grey">(${messages[message]["timestamp"]})</span><b>:</b> <br> &nbsp;${messages[message]["message"]}`;
           document.querySelector("#messages").append(li);
         };
       };

@@ -57,20 +57,19 @@ def send(data):
     global messages
     global messagecounter
 
-
-    username = data["username"]
+    session["user_id"] = data["username"]
     timestamp = data["timestamp"]
     current_channel = data["channel"]
     message = data["message"]
 
     temp_dict = {
-        'username': username,
+        'username': session["user_id"],
         'channel': current_channel,
         'timestamp': timestamp,
         'message': message
     }
 
-    messages["messagecounter"] = temp_dict
+    messages[messagecounter] = temp_dict
     messagecounter += 1
 
-    emit("announce message", {"message": message, "user": username, "channel": current_channel , "timestamp": timestamp}, broadcast=True)
+    emit("announce message", {"message": message, "user": session["user_id"], "channel": current_channel , "timestamp": timestamp}, broadcast=True)

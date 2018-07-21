@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // if a new user, prompt the user to type in a username.
     if (!localStorage.getItem('username')) {
         var username = prompt("Please create a username to start chatting in ChatterBox!");
+        // if user cancels the prompt, re-prompt them to enter username if they want to enter
+        while (!username) {
+            var username = prompt("You need to create a username to enter ChatterBox.");
+        };
         localStorage.setItem('username', username);
     };
 
@@ -51,6 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             };
         });
+
+        // whenever new message is added to the page, update new delete button onclick attributes
+        var targetlist = document.querySelector("#messages");
+        var observer = new MutationObserver(function() {
+            document.querySelectorAll("button").forEach(del => {
+                del.onclick = () => {
+                    var key = del.parentElement.dataset.key;
+                    socket.emit("delete message", {"key": key});
+                    return false;
+                };
+            });
+        });
+        var configs = {childList: true};
+        observer.observe(targetlist, configs);
+
     });
 
     // if new channel name exists, throw error

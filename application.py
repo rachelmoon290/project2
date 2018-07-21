@@ -21,7 +21,7 @@ channel_list = ['general'] # channel list
 channels_counter = {'general': 0} # dictionary to count number of messages in each channel, to store maximum 100 messages per channel
 
 messages = {} # all the messages will be stored in this dictionary
-message_id = 0 #serves as message primary key
+message_id = 1 #serves as message primary key
 
 
 
@@ -94,8 +94,8 @@ def send(data):
     }
 
     # put this information into global message dictionary
-    messages[message_id] = temp_dict
-    current_message_id = message_id
+    messages[str(message_id)] = temp_dict
+    current_message_id = str(message_id)
     message_id += 1
 
     # keep track of number of messages in the current channel
@@ -104,7 +104,7 @@ def send(data):
     # if this channel has reached maximum of 100 messages, delete the oldest message
     if (channels_counter[current_channel] > 100):
         for key in messages:
-            if messages[key]["channel"] == current_channel:
+            if (messages[key]["channel"] == current_channel):
                 del messages[key]
                 channels_counter[current_channel] -= 1
                 break;
@@ -116,9 +116,14 @@ def send(data):
 @socketio.on("delete message")
 def delete(data):
     global messages
+    global channels_counter
 
     # delete message
     key = data["key"]
-    del messages[int(key)]
-    
+    key = str(key)
+    channelinfo = messages[key]["channel"]
+
+    del messages[key]
+    channels_counter[channelinfo] -= 1
+
     emit("deleted", {"key": key}, broadcast = True)

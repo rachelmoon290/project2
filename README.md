@@ -1,4 +1,4 @@
-# Project 2
+# CS-s33a Project 2: ChatterBox
 The ChatterBox single-page web application allows the user to create a username, create new channels, and send messages in the channel. The user can delete his/her own previous messages.
 
 ## index.js
